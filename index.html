@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeKalb County Parking Zones</title>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.27/esri/themes/light/main.css">
+  <script src="https://js.arcgis.com/4.27/"></script>
+  <style>
+    html, body, #viewDiv {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+    }
+    .esri-widget {
+      font-family: Avenir Next W00, Helvetica Neue, Helvetica, Arial, sans-serif;
+    }
+    .title {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 5px 10px;
+      border-radius: 3px;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div id="viewDiv"></div>
+  <div class="title">DeKalb County Parking Zones</div>
+
+  <script>
+    require([
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/layers/MapImageLayer",
+      "esri/layers/FeatureLayer",
+      "esri/layers/VectorTileLayer",
+      "esri/widgets/LayerList",
+      "esri/widgets/BasemapGallery",
+      "esri/widgets/Expand",
+      "esri/widgets/Legend",
+      "esri/widgets/Home",
+      "esri/widgets/NavigationToggle"
+    ], function(Map, MapView, MapImageLayer, FeatureLayer, VectorTileLayer, LayerList, BasemapGallery, Expand, Legend, Home, NavigationToggle) {
+
+      // Basemap layer
+      const basemapLayer = new VectorTileLayer({
+        url: "https://dcgis.dekalbcountyga.gov/hosted/rest/services/Hosted/BasemapVector/VectorTileServer"
+      });
+
+      // Map layers
+      const parkingZonesLayer = new MapImageLayer({
+        url: "https://dcgis.dekalbcountyga.gov/hosted/rest/services/Parking_Zones/MapServer"
+      });
+
+      const commissionerDistrictsLayer = new MapImageLayer({
+        url: "https://dcgis.dekalbcountyga.gov/mapping/rest/services/CommissionerDistricts/MapServer"
+      });
+
+      const taxParcelsLayer = new MapImageLayer({
+        url: "https://dcgis.dekalbcountyga.gov/mapping/rest/services/TaxParcels/MapServer"
+      });
+
+      // Create map
+      const map = new Map({
+        layers: [basemapLayer, parkingZonesLayer, commissionerDistrictsLayer, taxParcelsLayer]
+      });
+
+      // Create view
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-84.3, 33.8], // Longitude, latitude
+        zoom: 10
+      });
+
+      // Layer List widget
+      const layerList = new LayerList({
+        view: view
+      });
+
+      // Basemap Gallery widget
+      const basemapGallery = new BasemapGallery({
+        view: view
+      });
+
+      // Create Expand widget for Basemap Gallery
+      const basemapGalleryExpand = new Expand({
+        view: view,
+        content: basemapGallery,
+        expandIconClass: "esri-icon-basemap"  // Use an appropriate icon
+      });
+
+      // Legend widget
+      const legend = new Legend({
+        view: view
+      });
+
+      // Create Expand widget for Legend with a title
+      const legendExpand = new Expand({
+        view: view,
+        content: legend,
+        expandIconClass: "esri-icon-layer-list",
+        expandTooltip: "Legend",
+        title: "Legend"
+      });
+
+      // Home widget
+      const homeWidget = new Home({
+        view: view
+      });
+
+      // Navigation Toggle widget for previous and next extent
+      const navToggle = new NavigationToggle({
+        view: view
+      });
+
+      // Add Layer List widget to top-right corner
+      view.ui.add(layerList, "top-right");
+
+      // Add Expand widget for Basemap Gallery to bottom-right corner
+      view.ui.add(basemapGalleryExpand, {
+        position: "bottom-right"
+      });
+
+      // Add Expand widget for Legend to bottom-left corner
+      view.ui.add(legendExpand, "bottom-left");
+
+      // Add Home widget to top-left corner
+      view.ui.add(homeWidget, "top-left");
+
+      // Add Navigation Toggle widget to top-left corner below Home widget
+      view.ui.add(navToggle, "top-left");
+    });
+  </script>
+</body>
+</html>
